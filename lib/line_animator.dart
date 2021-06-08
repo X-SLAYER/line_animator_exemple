@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:math';
 
@@ -173,108 +172,108 @@ class PointInterpolator {
   }
 }
 
-class LineAnimator extends StatefulWidget {
-  final Widget child;
-  final List originalPoints;
-  final List builtPoints;
-  final Function distanceFunc;
-  final Function stateChangeCallback;
-  final Function duringCallback;
-  final Duration duration;
-  final double begin;
-  final double end;
-  final bool isReversed;
-  final AnimationController controller;
-  final bool interpolateBetweenPoints;
+// class LineAnimator extends StatefulWidget {
+//   final Widget child;
+//   final List originalPoints;
+//   final List builtPoints;
+//   final Function distanceFunc;
+//   final Function stateChangeCallback;
+//   final Function duringCallback;
+//   final Duration duration;
+//   final double begin;
+//   final double end;
+//   final bool isReversed;
+//   final AnimationController controller;
+//   final bool interpolateBetweenPoints;
 
-  const LineAnimator(
-      {Key key,
-      this.duration,
-      this.child,
-      this.originalPoints,
-      this.builtPoints,
-      this.distanceFunc,
-      this.duringCallback,
-      this.stateChangeCallback,
-      this.begin = 0.0,
-      this.end,
-      this.controller,
-      this.isReversed = false,
-      this.interpolateBetweenPoints = true})
-      : super(key: key);
+//   const LineAnimator(
+//       {Key key,
+//       this.duration,
+//       this.child,
+//       this.originalPoints,
+//       this.builtPoints,
+//       this.distanceFunc,
+//       this.duringCallback,
+//       this.stateChangeCallback,
+//       this.begin = 0.0,
+//       this.end,
+//       this.controller,
+//       this.isReversed = false,
+//       this.interpolateBetweenPoints = true})
+//       : super(key: key);
 
-  @override
-  _LineAnimatorState createState() => _LineAnimatorState();
-}
+//   @override
+//   _LineAnimatorState createState() => _LineAnimatorState();
+// }
 
-class _LineAnimatorState extends State<LineAnimator>
-    with TickerProviderStateMixin {
-  Animation<double> animation;
-  AnimationController controller;
-  List<LatLng> builtPoints = [];
-  PointInterpolator interpolator;
+// class _LineAnimatorState extends State<LineAnimator>
+//     with TickerProviderStateMixin {
+//   Animation<double> animation;
+//   AnimationController controller;
+//   List<LatLng> builtPoints = [];
+//   PointInterpolator interpolator;
 
-  @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     return widget.child;
+//   }
 
-  @override
-  void initState() {
-    startAnimation();
-    super.initState();
-  }
+//   @override
+//   void initState() {
+//     startAnimation();
+//     super.initState();
+//   }
 
-  void startAnimation() {
-    interpolator = PointInterpolator(
-        originalPoints: widget.originalPoints,
-        distanceFunc: null,
-        isReversed: widget.isReversed);
+//   void startAnimation() {
+//     interpolator = PointInterpolator(
+//         originalPoints: widget.originalPoints,
+//         distanceFunc: null,
+//         isReversed: widget.isReversed);
 
-    if (controller == null)
-      controller = AnimationController(duration: widget.duration, vsync: this);
+//     if (controller == null)
+//       controller = AnimationController(duration: widget.duration, vsync: this);
 
-    animation = Tween<double>(
-            begin: widget.begin, end: interpolator.totalDistance)
-        .animate(controller)
-          ..addListener(() {
-            InterpolatedResult interpolatedResult = interpolator.interpolate(
-                controller.value,
-                animation.value,
-                widget.interpolateBetweenPoints);
+//     animation = Tween<double>(
+//             begin: widget.begin, end: interpolator.totalDistance)
+//         .animate(controller)
+//           ..addListener(() {
+//             InterpolatedResult interpolatedResult = interpolator.interpolate(
+//                 controller.value,
+//                 animation.value,
+//                 widget.interpolateBetweenPoints);
 
-            /// not sure we need a tween at this point anymore, controller only ?
-            if (interpolatedResult.point != null)
-              widget.duringCallback(
-                  interpolatedResult.builtPoints,
-                  interpolatedResult.point,
-                  interpolatedResult.angle,
-                  animation.value);
-          })
-          ..addStatusListener((status) {
-            widget.stateChangeCallback(animation.status, builtPoints);
-          });
+//             /// not sure we need a tween at this point anymore, controller only ?
+//             if (interpolatedResult.point != null)
+//               widget.duringCallback(
+//                   interpolatedResult.builtPoints,
+//                   interpolatedResult.point,
+//                   interpolatedResult.angle,
+//                   animation.value);
+//           })
+//           ..addStatusListener((status) {
+//             widget.stateChangeCallback(animation.status, builtPoints);
+//           });
 
-    controller.forward();
-  }
+//     controller.forward();
+//   }
 
-  @override
-  void didUpdateWidget(LineAnimator oldWidget) {
-    if ((oldWidget.begin != widget.begin) ||
-        (oldWidget.originalPoints != widget.originalPoints ||
-            (oldWidget.isReversed != widget.isReversed))) {
-      interpolator.originalPoints = widget.originalPoints;
-      interpolator.isReversed = widget.isReversed;
-      interpolator.reload();
-      controller.reset();
-      controller.forward(from: widget.begin);
-    }
-    super.didUpdateWidget(oldWidget);
-  }
+//   @override
+//   void didUpdateWidget(LineAnimator oldWidget) {
+//     if ((oldWidget.begin != widget.begin) ||
+//         (oldWidget.originalPoints != widget.originalPoints ||
+//             (oldWidget.isReversed != widget.isReversed))) {
+//       interpolator.originalPoints = widget.originalPoints;
+//       interpolator.isReversed = widget.isReversed;
+//       interpolator.reload();
+//       controller.reset();
+//       controller.forward(from: widget.begin);
+//     }
+//     super.didUpdateWidget(oldWidget);
+//   }
 
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-}
+//   @override
+//   void dispose() {
+//     controller.dispose();
+//     super.dispose();
+//   }
+// }

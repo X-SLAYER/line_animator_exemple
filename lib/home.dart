@@ -4,7 +4,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:map_test/line_animator.dart';
 import 'package:map_test/providers.dart';
 import 'package:provider/provider.dart';
-import './data.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -45,7 +44,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    // points = getPoints(1);
     super.initState();
     controller =
         AnimationController(duration: Duration(seconds: 25), vsync: this);
@@ -71,13 +69,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 controller.value, animation.value, true);
 
             if (interpolatedResult.point != null) {
-              // print(interpolatedResult.builtPoints);
               print(interpolatedResult.point);
               print(interpolatedResult.angle);
               _controller.move(interpolatedResult.point, 16);
               Provider.of<MarkerProvider>(context, listen: false).updateMarker(
                   interpolatedResult.angle, interpolatedResult.point);
-              // print(animation.value);
             }
           })
           ..addStatusListener((status) {
@@ -89,6 +85,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    controller?.dispose();
     super.dispose();
   }
 
@@ -99,8 +96,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           builder: (_, marker, __) => FlutterMap(
             mapController: _controller,
             options: MapOptions(
-                bounds:
-                    LatLngBounds.fromPoints([...getPoints(0), ...getPoints(1)]),
                 boundsOptions: FitBoundsOptions(padding: EdgeInsets.all(30)),
                 onTap: (cords) {
                   myPoints.add(cords);
