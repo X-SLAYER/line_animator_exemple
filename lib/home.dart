@@ -38,9 +38,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   ];
   bool isReversed = false;
   MapController _controller = MapController();
-  PointInterpolator interpolator;
-  AnimationController controller;
-  Animation<double> animation;
+  late PointInterpolator interpolator;
+  late AnimationController controller;
+  Animation<double>? animation;
 
   @override
   void initState() {
@@ -52,40 +52,41 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       isReversed: false,
       distanceFunc: null,
     );
+    animation = Tween<double>(begin: 0.0, end: interpolator.totalDistance)
+        .animate(controller);
   }
 
   void startAnimation() {
     interpolator = PointInterpolator(
         originalPoints: points, distanceFunc: null, isReversed: false);
 
-    if (controller == null)
-      controller =
-          AnimationController(duration: Duration(seconds: 25), vsync: this);
+    controller =
+        AnimationController(duration: Duration(seconds: 5), vsync: this);
 
     animation = Tween<double>(begin: 0.0, end: interpolator.totalDistance)
         .animate(controller)
-          ..addListener(() {
-            InterpolatedResult interpolatedResult = interpolator.interpolate(
-                controller.value, animation.value, true);
+      ..addListener(() {
+        InterpolatedResult interpolatedResult =
+            interpolator.interpolate(controller.value, animation!.value, true);
 
-            if (interpolatedResult.point != null) {
-              print(interpolatedResult.point);
-              print(interpolatedResult.angle);
-              _controller.move(interpolatedResult.point, 16);
-              Provider.of<MarkerProvider>(context, listen: false).updateMarker(
-                  interpolatedResult.angle, interpolatedResult.point);
-            }
-          })
-          ..addStatusListener((status) {
-            print(animation.status);
-          });
+        if (interpolatedResult.point != null) {
+          print(interpolatedResult.point);
+          print(interpolatedResult.angle);
+          _controller.move(interpolatedResult.point!, 16);
+          Provider.of<MarkerProvider>(context, listen: false).updateMarker(
+              interpolatedResult.angle, interpolatedResult.point!);
+        }
+      })
+      ..addStatusListener((status) {
+        print(animation!.status);
+      });
 
     controller.forward();
   }
 
   @override
   void dispose() {
-    controller?.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -115,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 Marker(
                   width: 180,
                   height: 180,
-                  point: marker.markerPoint,
+                  point: marker.markerPoint ?? points[0],
                   builder: (ctx) => Container(
                     child: Transform.rotate(
                       angle: marker.markerAngle,
@@ -143,8 +144,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               child: Text("Start"),
               heroTag: null,
               onPressed: () {
-                if (animation?.status == AnimationStatus.completed)
-                  controller.reset();
+                controller.reset();
                 startAnimation();
               },
             ),

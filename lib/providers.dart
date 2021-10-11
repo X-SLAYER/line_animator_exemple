@@ -3,7 +3,7 @@ import 'package:latlong2/latlong.dart';
 
 class MarkerProvider extends ChangeNotifier {
   double markerAngle = 0.0;
-  LatLng markerPoint;
+  LatLng? markerPoint;
 
   updateMarker(double angle, LatLng position) {
     markerAngle = angle;

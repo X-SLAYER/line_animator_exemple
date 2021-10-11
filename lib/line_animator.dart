@@ -2,42 +2,45 @@ import 'package:latlong2/latlong.dart';
 import 'dart:math';
 
 class InterpolatedResult {
-  LatLng point;
+  LatLng? point;
   double angle;
   List<LatLng> builtPoints;
   double animValue;
   double controllerValue;
 
   InterpolatedResult(
-      {this.point,
-      this.angle,
-      this.builtPoints,
-      this.animValue,
-      this.controllerValue});
+      {required this.point,
+      required this.angle,
+      required this.builtPoints,
+      required this.animValue,
+      required this.controllerValue});
 }
 
 class PercentageStep {
-  double percent;
+  double? percent;
   double distance;
-  double time;
+  double? time;
 
-  PercentageStep({this.percent, this.distance, this.time});
+  PercentageStep({required this.percent, required this.distance, this.time});
 }
 
 class PointInterpolator {
   List<LatLng> builtPoints = [];
   List<LatLng> points = [];
   List<LatLng> originalPoints = [];
-  Function(LatLng, LatLng) distanceFunc;
-  List<PercentageStep> pointDistanceSteps;
+  Function(LatLng, LatLng)? distanceFunc;
+  List<PercentageStep>? pointDistanceSteps;
   int lastPointIndex = 1;
-  double totalDistance;
-  LatLng _previousPoint;
-  double _lastAngle;
-  LatLng interpolatedPoint;
+  double? totalDistance;
+  LatLng? _previousPoint;
+  double? _lastAngle;
+  LatLng? interpolatedPoint;
   bool isReversed = false;
 
-  PointInterpolator({this.originalPoints, this.distanceFunc, this.isReversed}) {
+  PointInterpolator(
+      {required this.originalPoints,
+      this.distanceFunc,
+      required this.isReversed}) {
     reload();
   }
 
@@ -66,15 +69,16 @@ class PointInterpolator {
 
     /// build up a list of distances that each point must pass before being displayed
     for (var c = 0; c < points.length - 1; c++) {
-      totalDistance += myDistanceFunc(points[c], points[c + 1]);
-      pointDistanceSteps
-          .add(PercentageStep(distance: totalDistance, percent: null));
+      totalDistance =
+          (totalDistance ?? 0.0) + myDistanceFunc(points[c], points[c + 1]);
+      pointDistanceSteps!
+          .add(PercentageStep(distance: totalDistance!, percent: null));
     }
 
     /// build a list of percentages now we know the length, for how far the point is along
     for (var c = 0; c < points.length; c++) {
-      pointDistanceSteps[c].percent =
-          pointDistanceSteps[c].distance / totalDistance;
+      pointDistanceSteps![c].percent =
+          pointDistanceSteps![c].distance / (totalDistance!);
     }
   }
 
@@ -83,7 +87,7 @@ class PointInterpolator {
     var thisPoint;
 
     for (var c = lastPointIndex; c < points.length; c++) {
-      if (animValue >= pointDistanceSteps[c].distance) {
+      if (animValue >= pointDistanceSteps![c].distance) {
         /// Our animation is past the next point, so add it in
         /// but remove any interpolated point that we were using
         if (interpolatedPoint != null) {
@@ -99,15 +103,15 @@ class PointInterpolator {
         /// only need this if we want to draw inbetween points...
         /// use our point steps and interpolate
         if (interpolateBetweenPoints) {
-          var lastPerc = pointDistanceSteps[c - 1].percent;
-          var nextPerc = pointDistanceSteps[c].percent;
+          var lastPerc = pointDistanceSteps![c - 1].percent;
+          var nextPerc = pointDistanceSteps![c].percent;
 
           if (nextPerc == null) break;
 
           var perc = (controllerValue - lastPerc) /
 
               ///  swap this around with not 0-1 and get rid of tweener ?
-              (nextPerc - lastPerc);
+              (nextPerc - lastPerc!);
 
           var intermediateLat =
               (points[c].latitude - points[c - 1].latitude) * perc +
@@ -120,9 +124,9 @@ class PointInterpolator {
               LatLng(intermediateLat, intermediateLon); // last tail point
 
           if (builtPoints.length > c) {
-            builtPoints[c] = interpolatedPoint;
+            builtPoints[c] = interpolatedPoint!;
           } else {
-            builtPoints.add(interpolatedPoint);
+            builtPoints.add(interpolatedPoint!);
           }
         }
 
@@ -138,8 +142,8 @@ class PointInterpolator {
 
     double angle = 0.0;
     if (_previousPoint != null && thisPoint != null) {
-      angle = -atan2(thisPoint.latitude - _previousPoint.latitude,
-              thisPoint.longitude - _previousPoint.longitude) -
+      angle = -atan2(thisPoint.latitude - _previousPoint!.latitude,
+              thisPoint.longitude - _previousPoint!.longitude) -
           4.7128;
     }
 
@@ -152,7 +156,7 @@ class PointInterpolator {
 
     return InterpolatedResult(
         point: thisPoint,
-        angle: _lastAngle,
+        angle: _lastAngle!,
         animValue: animValue,
         controllerValue: controllerValue,
         builtPoints: builtPoints);
@@ -171,109 +175,3 @@ class PointInterpolator {
     return distance;
   }
 }
-
-// class LineAnimator extends StatefulWidget {
-//   final Widget child;
-//   final List originalPoints;
-//   final List builtPoints;
-//   final Function distanceFunc;
-//   final Function stateChangeCallback;
-//   final Function duringCallback;
-//   final Duration duration;
-//   final double begin;
-//   final double end;
-//   final bool isReversed;
-//   final AnimationController controller;
-//   final bool interpolateBetweenPoints;
-
-//   const LineAnimator(
-//       {Key key,
-//       this.duration,
-//       this.child,
-//       this.originalPoints,
-//       this.builtPoints,
-//       this.distanceFunc,
-//       this.duringCallback,
-//       this.stateChangeCallback,
-//       this.begin = 0.0,
-//       this.end,
-//       this.controller,
-//       this.isReversed = false,
-//       this.interpolateBetweenPoints = true})
-//       : super(key: key);
-
-//   @override
-//   _LineAnimatorState createState() => _LineAnimatorState();
-// }
-
-// class _LineAnimatorState extends State<LineAnimator>
-//     with TickerProviderStateMixin {
-//   Animation<double> animation;
-//   AnimationController controller;
-//   List<LatLng> builtPoints = [];
-//   PointInterpolator interpolator;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return widget.child;
-//   }
-
-//   @override
-//   void initState() {
-//     startAnimation();
-//     super.initState();
-//   }
-
-//   void startAnimation() {
-//     interpolator = PointInterpolator(
-//         originalPoints: widget.originalPoints,
-//         distanceFunc: null,
-//         isReversed: widget.isReversed);
-
-//     if (controller == null)
-//       controller = AnimationController(duration: widget.duration, vsync: this);
-
-//     animation = Tween<double>(
-//             begin: widget.begin, end: interpolator.totalDistance)
-//         .animate(controller)
-//           ..addListener(() {
-//             InterpolatedResult interpolatedResult = interpolator.interpolate(
-//                 controller.value,
-//                 animation.value,
-//                 widget.interpolateBetweenPoints);
-
-//             /// not sure we need a tween at this point anymore, controller only ?
-//             if (interpolatedResult.point != null)
-//               widget.duringCallback(
-//                   interpolatedResult.builtPoints,
-//                   interpolatedResult.point,
-//                   interpolatedResult.angle,
-//                   animation.value);
-//           })
-//           ..addStatusListener((status) {
-//             widget.stateChangeCallback(animation.status, builtPoints);
-//           });
-
-//     controller.forward();
-//   }
-
-//   @override
-//   void didUpdateWidget(LineAnimator oldWidget) {
-//     if ((oldWidget.begin != widget.begin) ||
-//         (oldWidget.originalPoints != widget.originalPoints ||
-//             (oldWidget.isReversed != widget.isReversed))) {
-//       interpolator.originalPoints = widget.originalPoints;
-//       interpolator.isReversed = widget.isReversed;
-//       interpolator.reload();
-//       controller.reset();
-//       controller.forward(from: widget.begin);
-//     }
-//     super.didUpdateWidget(oldWidget);
-//   }
-
-//   @override
-//   void dispose() {
-//     controller.dispose();
-//     super.dispose();
-//   }
-// }
