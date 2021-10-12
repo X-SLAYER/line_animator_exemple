@@ -8,12 +8,13 @@ class InterpolatedResult {
   double animValue;
   double controllerValue;
 
-  InterpolatedResult(
-      {required this.point,
-      required this.angle,
-      required this.builtPoints,
-      required this.animValue,
-      required this.controllerValue});
+  InterpolatedResult({
+    required this.point,
+    required this.angle,
+    required this.builtPoints,
+    required this.animValue,
+    required this.controllerValue,
+  });
 }
 
 class PercentageStep {
@@ -35,12 +36,12 @@ class PointInterpolator {
   LatLng? _previousPoint;
   double? _lastAngle;
   LatLng? interpolatedPoint;
-  bool isReversed = false;
+  bool isReversed;
 
   PointInterpolator(
       {required this.originalPoints,
       this.distanceFunc,
-      required this.isReversed}) {
+      this.isReversed = false}) {
     reload();
   }
 

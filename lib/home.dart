@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -15,26 +17,15 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   List<LatLng> myPoints = [];
   ValueNotifier<LatLng> latLng = ValueNotifier<LatLng>(LatLng(0.0, 0.0));
   List<LatLng> points = [
-    LatLng(35.829712, 10.640552),
-    LatLng(35.833536, 10.640169),
-    LatLng(35.835353, 10.636464),
-    LatLng(35.836059, 10.635675),
-    LatLng(35.837019, 10.634611),
-    LatLng(35.838154, 10.63307),
-    LatLng(35.838988, 10.63171),
-    LatLng(35.839576, 10.630134),
-    LatLng(35.839942, 10.629649),
-    LatLng(35.840249, 10.62894),
-    LatLng(35.840251, 10.628401),
-    LatLng(35.84012, 10.627054),
-    LatLng(35.840042, 10.625409),
-    LatLng(35.84003, 10.623829),
-    LatLng(35.84007, 10.622763),
-    LatLng(35.840192, 10.622491),
-    LatLng(35.840174, 10.622341),
-    LatLng(35.840007, 10.6222),
-    LatLng(35.839835, 10.622385),
-    LatLng(35.839596, 10.622725)
+    LatLng(36.726687, 3.06347),
+    LatLng(36.634455, 3.006323),
+    LatLng(36.688443, 2.849542),
+    LatLng(36.682102, 2.937777),
+    LatLng(36.674, 2.953073),
+    LatLng(36.702357, 3.200328),
+    LatLng(36.73825, 4.366245),
+    LatLng(36.784522, 3.018333),
+    LatLng(36.475435, 2.82872),
   ];
   bool isReversed = false;
   MapController _controller = MapController();
@@ -46,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     controller =
-        AnimationController(duration: Duration(seconds: 25), vsync: this);
+        AnimationController(duration: Duration(seconds: 42), vsync: this);
     interpolator = PointInterpolator(
       originalPoints: points,
       isReversed: false,
@@ -61,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         originalPoints: points, distanceFunc: null, isReversed: false);
 
     controller =
-        AnimationController(duration: Duration(seconds: 5), vsync: this);
+        AnimationController(duration: Duration(seconds: 35), vsync: this);
 
     animation = Tween<double>(begin: 0.0, end: interpolator.totalDistance)
         .animate(controller)
@@ -72,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         if (interpolatedResult.point != null) {
           print(interpolatedResult.point);
           print(interpolatedResult.angle);
-          _controller.move(interpolatedResult.point!, 16);
+          _controller.move(interpolatedResult.point!, 10.5);
           Provider.of<MarkerProvider>(context, listen: false).updateMarker(
               interpolatedResult.angle, interpolatedResult.point!);
         }
@@ -97,10 +88,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           builder: (_, marker, __) => FlutterMap(
             mapController: _controller,
             options: MapOptions(
-                boundsOptions: FitBoundsOptions(padding: EdgeInsets.all(30)),
-                onTap: (cords) {
-                  myPoints.add(cords);
-                }),
+              boundsOptions: FitBoundsOptions(padding: EdgeInsets.all(30)),
+              onTap: (_, latLng) {
+                print(_controller.zoom);
+                log('$latLng');
+              },
+            ),
             layers: [
               TileLayerOptions(
                   placeholderImage: NetworkImage(
